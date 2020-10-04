@@ -1,0 +1,5 @@
+
+liblangserver@https://github.com/mballance/liblangserver.git
+pssparser@https://github.com/psstools/pssparser.git
+
+
