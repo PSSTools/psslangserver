@@ -14,6 +14,8 @@ public:
 
 	virtual ~PSSLangServer();
 
+	virtual lls::ServerCapabilitiesSP initialize(
+			lls::InitializeParamsSP params) override;
 
 };
 
