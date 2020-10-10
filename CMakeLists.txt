@@ -30,17 +30,22 @@ file(GLOB psslangserver_SRC
   
 link_directories(
   ${CMAKE_BINARY_DIR}/liblangserver/lib
+  ${CMAKE_BINARY_DIR}/pssparser/lib
+  ${CMAKE_BINARY_DIR}/pssparser/src/PSSPARSER-build/antlr4/lib
   )
 
 add_executable(psslangserver ${psslangserver_SRC})
 
 target_link_libraries(psslangserver
   liblangserver
+  pssparser
+  antlr4-runtime
   pthread)
   
 target_include_directories(psslangserver PRIVATE
 	${PACKAGES_DIR}/liblangserver/src
 	${PACKAGES_DIR}/json/include
+	${PACKAGES_DIR}/pssparser/src/parser
 	)
 	
 add_dependencies(psslangserver

@@ -30,7 +30,11 @@
 #include "ValInt.h"
 #include "ValStr.h"
 
-PSSLangServer::PSSLangServer() : m_connection(0) {
+namespace pls {
+
+PSSLangServer::PSSLangServer() : m_connection(0),
+		m_index_mgr(new IndexManager()) {
+	m_index_mgr->addListener(this);
 	// TODO Auto-generated constructor stub
 
 }
@@ -50,6 +54,19 @@ lls::ServerCapabilitiesSP PSSLangServer::initialize(
 					lls::ValBool::true_v,
 					lls::TextDocumentSyncKind::Full);
 	capabilities->textDocumentSync(textDocumentSync);
+
+	fprintf(stdout, ">PSSLangServer::initialize m_index_mgr=%p\n",
+			m_index_mgr.get());
+	fflush(stdout);
+	fprintf(stdout, "rootUri=%p\n", params->rootUri().get());
+	fflush(stdout);
+	fprintf(stdout, "rootUri=%s\n", params->rootUri()->val().c_str());
+	fflush(stdout);
+	WorkspaceFolderInfo *folder = m_index_mgr->addWorkspaceFolder(
+			params->rootUri()->val());
+	fprintf(stdout, "<PSSLangServer::initialize m_index_mgr=%p %s\n",
+			m_index_mgr.get(), params->rootUri()->val().c_str());
+	fflush(stdout);
 
 	return capabilities;
 }
@@ -89,12 +106,42 @@ void PSSLangServer::didOpenTextDocument(
 	fprintf(stdout, "--> didOpenTextDocument: %s\n",
 			params->textDocument()->uri()->val().c_str());
 	fflush(stdout);
-	lls::DocumentSP doc = m_docmgr.openDocument(
+
+	m_index_mgr->openFile(
 			params->textDocument()->uri()->val(),
 			params->textDocument()->text()->val());
+
 	fprintf(stdout, "<-- didOpenTextDocument: %s\n",
 			params->textDocument()->uri()->val().c_str());
 	fflush(stdout);
 
 }
 
+void PSSLangServer::fileParsed(FileInfo *info) {
+	fprintf(stdout, "fileParsed: %s\n", info->uri().c_str());
+	lls::ValVector<lls::Diagnostic>::SP diagnostics =
+			lls::ValVector<lls::Diagnostic>::mk();
+	fprintf(stdout, "create diagnostics\n");
+	fflush(stdout);
+	fprintf(stdout, "create diagnostics (2)\n");
+	fflush(stdout);
+
+
+	for (std::vector<pssp::Marker>::const_iterator
+			it=info->markers().begin(); it!=info->markers().end(); it++) {
+		diagnostics->push_back(lls::Diagnostic::mk(
+				lls::Range::mk(
+						lls::Position::mk(lls::ValInt::mk(4), lls::ValInt::mk(2)),
+						lls::Position::mk(lls::ValInt::mk(4), lls::ValInt::mk(8))),
+				lls::ValStr::mk(it->msg())));
+	}
+
+	lls::PublishDiagnosticsParamsSP diagnostic_p =
+			lls::PublishDiagnosticsParams::mk(
+					lls::ValStr::mk(info->uri()),
+					diagnostics);
+	fprintf(stdout, "diagnostic_p: %s\n", diagnostic_p->dump().dump().c_str());
+	m_connection->publishDiagnostics(diagnostic_p);
+}
+
+}

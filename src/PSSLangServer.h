@@ -27,8 +27,13 @@
 #include "BaseLangServer.h"
 #include "DocumentManager.h"
 #include "IClientConnection.h"
+#include "IndexManager.h"
 
-class PSSLangServer : public lls::BaseLangServer {
+namespace pls {
+
+class PSSLangServer :
+		public lls::BaseLangServer,
+		public virtual pls::IIndexManagerListener {
 public:
 	PSSLangServer();
 
@@ -44,8 +49,12 @@ public:
 	virtual void didOpenTextDocument(
 			lls::DidOpenTextDocumentParamsSP params) override;
 
+	virtual void fileParsed(FileInfo *info) override;
+
 private:
 	lls::IClientConnection				*m_connection;
 	lls::DocumentManager				m_docmgr;
+	pls::IndexManagerUP					m_index_mgr;
 };
 
+}

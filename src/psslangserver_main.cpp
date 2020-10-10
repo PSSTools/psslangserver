@@ -35,6 +35,8 @@
 #include "MessageDispatcher.h"
 #include "SocketMessageTransport.h"
 
+using namespace pls;
+
 int main(int argc, char **argv) {
 	int32_t port = -1;
 
