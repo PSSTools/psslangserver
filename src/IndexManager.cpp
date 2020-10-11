@@ -14,7 +14,7 @@
 #include "Path.h"
 #include "URI.h"
 
-#define EN_DEBUG_INDEX_MANAGER
+#undef EN_DEBUG_INDEX_MANAGER
 
 #ifdef EN_DEBUG_INDEX_MANAGER
 #define DEBUG_ENTER(fmt, ...) \
@@ -52,11 +52,6 @@ WorkspaceFolderInfo *IndexManager::addWorkspaceFolder(const std::string &uri) {
 	m_workspaceFolders.insert({uri, WorkspaceFolderInfoUP(folder_i)});
 	discoverSource(folder_i, URI::path(uri));
 
-	for (std::map<std::string,FileInfoUP>::const_iterator
-			it=folder_i->files().begin(); it!=folder_i->files().end(); it++) {
-		fprintf(stdout, "File: %s\n", it->first.c_str());
-	}
-
 	return folder_i;
 }
 
@@ -72,6 +67,24 @@ OpenFileInfo *IndexManager::openFile(
 	return info;
 }
 
+OpenFileInfo *IndexManager::openFileChanged(
+			const std::string 	&uri,
+			const std::string	&content) {
+	std::map<std::string,OpenFileInfoUP>::iterator it;
+
+	if ((it=m_openFiles.find(uri)) != m_openFiles.end()) {
+		it->second.get()->content(content);
+		std::stringstream in(content);
+		parseFile(
+				it->second.get(),
+				&in);
+
+		return it->second.get();
+	} else {
+		return 0;
+	}
+}
+
 void IndexManager::discoverSource(
 		WorkspaceFolderInfo 	*folder,
 		const std::string		&path) {
@@ -85,7 +98,6 @@ void IndexManager::discoverSource(
 		DEBUG_MSG("file: %s", f_it->c_str());
 		if (*f_it != "." && *f_it != "..") {
 			std::string fullpath = Path::join(path, *f_it);
-			fprintf(stdout, "fullpath: %s\n", fullpath.c_str());
 			if (Path::is_dir(fullpath)) {
 				DEBUG_MSG("directory %s", fullpath.c_str());
 				discoverSource(folder, fullpath);
@@ -120,6 +132,9 @@ void IndexManager::parseFile(
 			FileInfo		*info,
 			std::istream	*in) {
 	DEBUG_ENTER("parseFile: %s", info->uri().c_str());
+
+	info->clearMarkers();
+
 	FileInfoMarkerCollector collector(info);
 	pssp::AstBuilder ast_builder(&collector);
 

@@ -34,8 +34,48 @@
 #include "LangServerMethodHandler.h"
 #include "MessageDispatcher.h"
 #include "SocketMessageTransport.h"
+#include <unistd.h>
+#include <signal.h>
+#include <execinfo.h>
+#include <cxxabi.h>
+
+
+
 
 using namespace pls;
+
+static void sig_handler(int signum) {
+	void *array[16];
+	char **strings;
+	int size;
+
+	fprintf(stdout, "Signal Handler called\n");
+	fflush(stdout);
+
+	size = backtrace (array, sizeof(array)/sizeof(void *));
+	strings = backtrace_symbols (array, size);
+	if (strings) {
+		for (uint32_t i = 0; i < size; i++) {
+			int status = -1;
+			char *p_start, *p_end;
+			if ((p_start=strchr(strings[i], '(')) &&
+					((p_end=strchr(p_start, '+')))) {
+				*p_end = 0;
+//				fprintf(stdout, "Demangle: %s\n", p_start+1);
+//				fflush(stdout);
+				char *demangledName = abi::__cxa_demangle(p_start+1, NULL, NULL, &status);
+				*p_start = 0;
+				fprintf(stdout, "%s(%s+%s\n", strings[i], demangledName, p_end+1);
+				free(demangledName);
+			} else {
+				fprintf(stdout, "%s\n", strings[i]);
+			}
+			fflush(stdout);
+		}
+	}
+	free(strings);
+	exit(1);
+}
 
 int main(int argc, char **argv) {
 	int32_t port = -1;
@@ -54,6 +94,8 @@ int main(int argc, char **argv) {
 			exit(1);
 		}
 	}
+
+	signal(SIGSEGV, &sig_handler);
 
 	// First, connect to the socket
 	struct sockaddr_in serv_addr;

@@ -50,6 +50,7 @@ target_include_directories(psslangserver PRIVATE
 	
 add_dependencies(psslangserver
 	LIBLANGSERVER
+	PSSPARSER
 	)
 
 

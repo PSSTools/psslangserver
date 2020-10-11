@@ -20,6 +20,8 @@ public:
 
 	const std::string &content() const { return m_content; }
 
+	void content(const std::string &c) { m_content = c; }
+
 private:
 	std::string				m_content;
 

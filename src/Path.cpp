@@ -25,9 +25,6 @@ bool Path::is_dir(const std::string &path) {
 	struct stat st;
 	int ret = stat(path.c_str(), &st);
 
-	fprintf(stdout, "is_dir: %s ret=%d st_mode=0x%08x\n",
-			path.c_str(), ret, st.st_mode);
-
 	return (ret == 0 && S_ISDIR(st.st_mode));
 }
 
@@ -39,8 +36,6 @@ bool Path::is_file(const std::string &path) {
 std::string Path::ext(const std::string &path) {
 	int32_t idx;
 	if ((idx=path.rfind('.')) != std::string::npos && idx != 0) {
-		fprintf(stdout, "ext: %s idx=%d substr=%s\n",
-				path.c_str(), idx, path.substr(idx).c_str());
 		return path.substr(idx);
 	} else {
 		return "";

@@ -30,6 +30,27 @@
 #include "ValInt.h"
 #include "ValStr.h"
 
+#undef EN_DEBUG_PSS_LANGSERVER
+
+#ifdef EN_DEBUG_INDEX_MANAGER
+#define DEBUG_ENTER(fmt, ...) \
+	fprintf(stdout, "--> PSSLangServer::" fmt, ##__VA_ARGS__); \
+	fprintf(stdout, "\n"); \
+	fflush(stdout);
+#define DEBUG_LEAVE(fmt, ...) \
+	fprintf(stdout, "<-- PSSLangServer::" fmt, ##__VA_ARGS__); \
+	fprintf(stdout, "\n"); \
+	fflush(stdout);
+#define DEBUG_MSG(fmt, ...) \
+	fprintf(stdout, "PSSLangServer:: " fmt, ##__VA_ARGS__); \
+	fprintf(stdout, "\n"); \
+	fflush(stdout);
+#else
+#define DEBUG_ENTER(fmt, ...)
+#define DEBUG_LEAVE(fmt, ...)
+#define DEBUG_MSG(fmt, ...)
+#endif
+
 namespace pls {
 
 PSSLangServer::PSSLangServer() : m_connection(0),
@@ -46,6 +67,7 @@ PSSLangServer::~PSSLangServer() {
 lls::ServerCapabilitiesSP PSSLangServer::initialize(
 		lls::IClientConnection		*connection,
 		lls::InitializeParamsSP 	params) {
+	DEBUG_ENTER("initialize");
 	m_connection = connection;
 	lls::ServerCapabilitiesSP capabilities = lls::ServerCapabilities::mk();
 
@@ -55,84 +77,55 @@ lls::ServerCapabilitiesSP PSSLangServer::initialize(
 					lls::TextDocumentSyncKind::Full);
 	capabilities->textDocumentSync(textDocumentSync);
 
-	fprintf(stdout, ">PSSLangServer::initialize m_index_mgr=%p\n",
-			m_index_mgr.get());
-	fflush(stdout);
-	fprintf(stdout, "rootUri=%p\n", params->rootUri().get());
-	fflush(stdout);
-	fprintf(stdout, "rootUri=%s\n", params->rootUri()->val().c_str());
-	fflush(stdout);
 	WorkspaceFolderInfo *folder = m_index_mgr->addWorkspaceFolder(
 			params->rootUri()->val());
-	fprintf(stdout, "<PSSLangServer::initialize m_index_mgr=%p %s\n",
-			m_index_mgr.get(), params->rootUri()->val().c_str());
-	fflush(stdout);
 
+	DEBUG_LEAVE("initialize");
 	return capabilities;
 }
 
 void PSSLangServer::didChangeTextDocument(
 			lls::DidChangeTextDocumentParamsSP params) {
-	fprintf(stdout, "didChangeTextDocument: %s\n", params->textDocument()->uri()->val().c_str());
-	fflush(stdout);
+	DEBUG_ENTER("didChangeTextDocument");
 
-	lls::ValVector<lls::Diagnostic>::SP diagnostics =
-			lls::ValVector<lls::Diagnostic>::mk();
-	fprintf(stdout, "create diagnostics\n");
-	fflush(stdout);
-	diagnostics->push_back(lls::Diagnostic::mk(
-			lls::Range::mk(
-					lls::Position::mk(lls::ValInt::mk(4), lls::ValInt::mk(2)),
-					lls::Position::mk(lls::ValInt::mk(4), lls::ValInt::mk(8))),
-			lls::ValStr::mk(std::string("Error here"))));
-	fprintf(stdout, "create diagnostics (2)\n");
-	fflush(stdout);
-	lls::PublishDiagnosticsParamsSP diagnostic_p =
-			lls::PublishDiagnosticsParams::mk(
-					params->textDocument()->uri(),
-					diagnostics);
+	lls::ValVector<lls::TextDocumentContentChangeEvent>::SP changes =
+			params->contentChanges();
 
-	fprintf(stdout, "diagnostic_p: %s\n", diagnostic_p->dump().dump().c_str());
+	OpenFileInfo *info = m_index_mgr->openFileChanged(
+			params->textDocument()->uri()->val(),
+			changes->children(0)->text()->val());
 
-	fprintf(stdout, "connection=%p\n", m_connection);
-	fflush(stdout);
-	m_connection->publishDiagnostics(diagnostic_p);
-	fprintf(stdout, "<-- didChangeTextDocument: %s\n", params->textDocument()->uri()->val().c_str());
-	fflush(stdout);
+	DEBUG_LEAVE("didChangeTextDocument");
 }
 
 void PSSLangServer::didOpenTextDocument(
 			lls::DidOpenTextDocumentParamsSP params) {
-	fprintf(stdout, "--> didOpenTextDocument: %s\n",
-			params->textDocument()->uri()->val().c_str());
-	fflush(stdout);
+	DEBUG_ENTER("didOpenTextDocument");
 
 	m_index_mgr->openFile(
 			params->textDocument()->uri()->val(),
 			params->textDocument()->text()->val());
 
-	fprintf(stdout, "<-- didOpenTextDocument: %s\n",
-			params->textDocument()->uri()->val().c_str());
-	fflush(stdout);
-
+	DEBUG_LEAVE("didOpenTextDocument");
 }
 
 void PSSLangServer::fileParsed(FileInfo *info) {
-	fprintf(stdout, "fileParsed: %s\n", info->uri().c_str());
+	DEBUG_ENTER("fileParsed");
 	lls::ValVector<lls::Diagnostic>::SP diagnostics =
 			lls::ValVector<lls::Diagnostic>::mk();
-	fprintf(stdout, "create diagnostics\n");
-	fflush(stdout);
-	fprintf(stdout, "create diagnostics (2)\n");
-	fflush(stdout);
-
 
 	for (std::vector<pssp::Marker>::const_iterator
 			it=info->markers().begin(); it!=info->markers().end(); it++) {
+		// Note: ANTLR line numbers are 1-offset while LSP line numbers
+		// are 0-offset
 		diagnostics->push_back(lls::Diagnostic::mk(
 				lls::Range::mk(
-						lls::Position::mk(lls::ValInt::mk(4), lls::ValInt::mk(2)),
-						lls::Position::mk(lls::ValInt::mk(4), lls::ValInt::mk(8))),
+						lls::Position::mk(
+								lls::ValInt::mk(it->loc().lineno()-1),
+								lls::ValInt::mk(it->loc().linepos())),
+						lls::Position::mk(
+								lls::ValInt::mk(it->loc().lineno()-1),
+								lls::ValInt::mk(it->loc().linepos()))),
 				lls::ValStr::mk(it->msg())));
 	}
 
@@ -140,8 +133,8 @@ void PSSLangServer::fileParsed(FileInfo *info) {
 			lls::PublishDiagnosticsParams::mk(
 					lls::ValStr::mk(info->uri()),
 					diagnostics);
-	fprintf(stdout, "diagnostic_p: %s\n", diagnostic_p->dump().dump().c_str());
 	m_connection->publishDiagnostics(diagnostic_p);
+	DEBUG_LEAVE("fileParsed");
 }
 
 }

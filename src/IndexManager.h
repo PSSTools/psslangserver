@@ -30,6 +30,10 @@ public:
 			const std::string 	&uri,
 			const std::string	&content);
 
+	OpenFileInfo *openFileChanged(
+			const std::string 	&uri,
+			const std::string	&content);
+
 	void closeFile(
 			const std::string 	&uri);
 
