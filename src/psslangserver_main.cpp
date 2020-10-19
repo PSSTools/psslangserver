@@ -25,25 +25,30 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#ifndef _WIN32
 #include <sys/socket.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <string.h>
 #include <unistd.h>
+#else
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#endif
+#include <string.h>
 #include "PSSLangServer.h"
 #include "LangServerMethodHandler.h"
 #include "MessageDispatcher.h"
 #include "SocketMessageTransport.h"
-#include <unistd.h>
+#ifndef _WIN32
 #include <signal.h>
 #include <execinfo.h>
 #include <cxxabi.h>
-
-
+#endif
 
 
 using namespace pls;
 
+#ifndef _WIN32
 static void sig_handler(int signum) {
 	void *array[16];
 	char **strings;
@@ -61,8 +66,6 @@ static void sig_handler(int signum) {
 			if ((p_start=strchr(strings[i], '(')) &&
 					((p_end=strchr(p_start, '+')))) {
 				*p_end = 0;
-//				fprintf(stdout, "Demangle: %s\n", p_start+1);
-//				fflush(stdout);
 				char *demangledName = abi::__cxa_demangle(p_start+1, NULL, NULL, &status);
 				*p_start = 0;
 				fprintf(stdout, "%s(%s+%s\n", strings[i], demangledName, p_end+1);
@@ -76,6 +79,7 @@ static void sig_handler(int signum) {
 	free(strings);
 	exit(1);
 }
+#endif
 
 int main(int argc, char **argv) {
 	int32_t port = -1;
@@ -95,7 +99,19 @@ int main(int argc, char **argv) {
 		}
 	}
 
+#ifndef _WIN32
 	signal(SIGSEGV, &sig_handler);
+#else
+	WSADATA wsaData;
+	int iResult;
+
+	// Initialize Winsock
+	iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+	if (iResult != 0) {
+	    printf("WSAStartup failed: %d\n", iResult);
+	    return 1;
+	}
+#endif
 
 	// First, connect to the socket
 	struct sockaddr_in serv_addr;
