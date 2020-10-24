@@ -27,6 +27,7 @@
 #include "nlohmann/json.hpp"
 #include "TextDocumentSyncOptions.h"
 #include "Position.h"
+#include "ValBool.h"
 #include "ValInt.h"
 #include "ValStr.h"
 
@@ -76,6 +77,7 @@ lls::ServerCapabilitiesSP PSSLangServer::initialize(
 					lls::ValBool::true_v,
 					lls::TextDocumentSyncKind::Full);
 	capabilities->textDocumentSync(textDocumentSync);
+	capabilities->documentSymbolProvider(lls::ValBool::true_v);
 
 	WorkspaceFolderInfo *folder = m_index_mgr->addWorkspaceFolder(
 			params->rootUri()->val());
