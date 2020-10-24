@@ -30,9 +30,11 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <unistd.h>
+typedef int socket_t;
 #else
 #include <winsock2.h>
 #include <ws2tcpip.h>
+typedef SOCKET socket_t;
 #endif
 #include <string.h>
 #include "PSSLangServer.h"
@@ -99,6 +101,11 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	if (port == -1) {
+		fprintf(stdout, "Error: no -port specified\n");
+		exit(1);
+	}
+
 #ifndef _WIN32
 	signal(SIGSEGV, &sig_handler);
 #else
@@ -116,7 +123,7 @@ int main(int argc, char **argv) {
 	// First, connect to the socket
 	struct sockaddr_in serv_addr;
 
-	int sock = socket(AF_INET, SOCK_STREAM, 0);
+	socket_t sock = socket(AF_INET, SOCK_STREAM, 0);
 
 	memset(&serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
