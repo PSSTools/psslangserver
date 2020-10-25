@@ -21,7 +21,12 @@ URI::~URI() {
 
 std::string URI::path(const std::string &uri) {
 	if (uri.find("file://") == 0) {
+#ifdef _WIN32
+		// Windows URLs start with file:///c:/...
+		return uri.substr(8);
+#else
 		return uri.substr(7);
+#endif
 	} else {
 		return uri;
 	}

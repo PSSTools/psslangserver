@@ -30,8 +30,9 @@
 #include "ValBool.h"
 #include "ValInt.h"
 #include "ValStr.h"
+#include "WorkDoneProgressOptions.h"
 
-#undef EN_DEBUG_PSS_LANGSERVER
+#define EN_DEBUG_PSS_LANGSERVER
 
 #ifdef EN_DEBUG_INDEX_MANAGER
 #define DEBUG_ENTER(fmt, ...) \
@@ -77,6 +78,7 @@ lls::ServerCapabilitiesSP PSSLangServer::initialize(
 					lls::ValBool::true_v,
 					lls::TextDocumentSyncKind::Full);
 	capabilities->textDocumentSync(textDocumentSync);
+	capabilities->hoverProvider(lls::ValBool::true_v);
 	capabilities->documentSymbolProvider(lls::ValBool::true_v);
 
 	WorkspaceFolderInfo *folder = m_index_mgr->addWorkspaceFolder(
@@ -137,6 +139,15 @@ void PSSLangServer::fileParsed(FileInfo *info) {
 					diagnostics);
 	m_connection->publishDiagnostics(diagnostic_p);
 	DEBUG_LEAVE("fileParsed");
+}
+
+lls::HoverSP PSSLangServer::hoverRequest(lls::HoverParamsSP params) {
+	return lls::Hover::mk(
+			lls::MarkupContent::mk(
+					lls::MarkupKind::PlainText,
+					lls::ValStr::mk("Hello")
+					),
+			lls::RangeSP());
 }
 
 }

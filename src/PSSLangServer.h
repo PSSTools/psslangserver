@@ -51,6 +51,8 @@ public:
 
 	virtual void fileParsed(FileInfo *info) override;
 
+	virtual lls::HoverSP hoverRequest(lls::HoverParamsSP params) override;
+
 private:
 	lls::IClientConnection				*m_connection;
 	lls::DocumentManager				m_docmgr;

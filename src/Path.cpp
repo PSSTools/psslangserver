@@ -58,17 +58,26 @@ std::vector<std::string> Path::list(const std::string &path) {
 	d = opendir(path.c_str());
 	if (d) {
 		while ((dir = readdir(d)) != NULL) {
-			ret.push_back(dir->d_name);
+			if (strcmp(dir->d_name, ".") && strcmp(dir->d_name, "..")) {
+				ret.push_back(dir->d_name);
+			}
 		}
 		closedir(d);
 	}
 #else
 	WIN32_FIND_DATA FindFileData;
-	HANDLE hFind = FindFirstFile(path.c_str(), &FindFileData);
+	std::string search_p = path + "/*";
+	fprintf(stdout, "Path::list: %s\n", search_p.c_str());
+	HANDLE hFind = FindFirstFile(search_p.c_str(), &FindFileData);
 	if (hFind != INVALID_HANDLE_VALUE) {
 		do {
-			ret.push_back(FindFileData.cFileName);
+			if (strcmp(FindFileData.cFileName, ".") && strcmp(FindFileData.cFileName, "..")) {
+				fprintf(stdout, "Add path: %s\n", FindFileData.cFileName);
+				ret.push_back(FindFileData.cFileName);
+			}
 		} while (FindNextFile(hFind, &FindFileData));
+	} else {
+		fprintf(stdout, "hFind=INVALID_HANDLE\n");
 	}
 #endif
 	return ret;

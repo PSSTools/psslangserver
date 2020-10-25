@@ -14,7 +14,7 @@
 #include "Path.h"
 #include "URI.h"
 
-#undef EN_DEBUG_INDEX_MANAGER
+#define EN_DEBUG_INDEX_MANAGER
 
 #ifdef EN_DEBUG_INDEX_MANAGER
 #define DEBUG_ENTER(fmt, ...) \
