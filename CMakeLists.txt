@@ -68,7 +68,7 @@ target_link_libraries(psslangserver ${PSSLANGSERVER_LIBS})
 target_include_directories(psslangserver PRIVATE
 	${PACKAGES_DIR}/liblangserver/src
 	${PACKAGES_DIR}/json/include
-	${PACKAGES_DIR}/pssparser/src/parser
+	${PACKAGES_DIR}/pssparser/src
 	)
 	
 add_dependencies(psslangserver
