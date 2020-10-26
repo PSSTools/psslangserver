@@ -14,7 +14,7 @@
 #include "Path.h"
 #include "URI.h"
 
-#undef EN_DEBUG_INDEX_MANAGER
+#define EN_DEBUG_INDEX_MANAGER
 
 #ifdef EN_DEBUG_INDEX_MANAGER
 #define DEBUG_ENTER(fmt, ...) \
@@ -132,6 +132,7 @@ void IndexManager::parseFile(
 			FileInfo		*info,
 			std::istream	*in) {
 	DEBUG_ENTER("parseFile: %s", info->uri().c_str());
+	pssp::GlobalScopeUP global(new pssp::GlobalScope());
 
 	info->clearMarkers();
 
@@ -139,7 +140,7 @@ void IndexManager::parseFile(
 	pssp::AstBuilder ast_builder(&collector);
 
 
-	ast_builder.build(in);
+	ast_builder.build(global.get(), in);
 
 	// Trigger a file-parsed notification
 	for (std::vector<IIndexManagerListener *>::const_iterator

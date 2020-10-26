@@ -16,6 +16,7 @@ ExternalProject_Add(PSSPARSER
 	CMAKE_CACHE_ARGS
 	  -DPACKAGES_DIR:PATH=${PACKAGES_DIR}
 	  -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}/pssparser
+	  -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
 	  -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
 )
 	
@@ -25,6 +26,7 @@ ExternalProject_Add(LIBLANGSERVER
 	CMAKE_CACHE_ARGS
 	  -DPACKAGES_DIR:PATH=${PACKAGES_DIR}
 	  -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}/liblangserver
+	  -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
 	  -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
 )
 
@@ -38,6 +40,7 @@ set(CompilerFlags
         )
 foreach(CompilerFlag ${CompilerFlags})
   string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+  string(REPLACE "/MDd" "/MTd" ${CompilerFlag} "${${CompilerFlag}}")
 endforeach()
 
 file(GLOB psslangserver_SRC
@@ -48,13 +51,14 @@ link_directories(
   ${CMAKE_BINARY_DIR}/liblangserver/lib
   ${CMAKE_BINARY_DIR}/pssparser/lib
   ${CMAKE_BINARY_DIR}/pssparser/src/PSSPARSER-build/antlr4/lib
+  ${CMAKE_BINARY_DIR}/pssparser/src/PSSPARSER-build/pssast/lib
   )
 
 add_executable(psslangserver ${psslangserver_SRC})
 set_property(TARGET psslangserver PROPERTY
   MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-list(APPEND PSSLANGSERVER_LIBS liblangserver pssparser)
+list(APPEND PSSLANGSERVER_LIBS liblangserver pssparser pssast)
 
 if (WIN32)
 list(APPEND PSSLANGSERVER_LIBS antlr4-runtime-static ws2_32)
@@ -69,6 +73,7 @@ target_include_directories(psslangserver PRIVATE
 	${PACKAGES_DIR}/liblangserver/src
 	${PACKAGES_DIR}/json/include
 	${PACKAGES_DIR}/pssparser/src
+	${CMAKE_BINARY_DIR}/pssparser/src/PSSPARSER-build/pssast/src
 	)
 	
 add_dependencies(psslangserver
