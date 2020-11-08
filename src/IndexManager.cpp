@@ -132,7 +132,7 @@ void IndexManager::parseFile(
 			FileInfo		*info,
 			std::istream	*in) {
 	DEBUG_ENTER("parseFile: %s", info->uri().c_str());
-	pssp::GlobalScopeUP global(new pssp::GlobalScope());
+	pssp::GlobalScopeUP global(new pssp::GlobalScope(0));
 
 	info->clearMarkers();
 
