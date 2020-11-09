@@ -54,7 +54,13 @@ jobs:
         #make
   ci-win32:
     runs-on: windows-latest
-    environment_script: "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+    strategy:
+      matrix:
+        config:
+        - {
+            name: "Windows x64"
+            environment_script: "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          }
     steps:
     - uses: actions/checkout@v1
     - name: Setup java
