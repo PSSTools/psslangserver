@@ -79,12 +79,13 @@ jobs:
         python -m ivpm update
     - name: Build
       run: |
+        call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
         mkdir build
         cd build
-        cmd /k where clang
-        cmd /k where gcc
-        cmd /k where cl
-        cmd /k "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat & where cl"
+        where clang
+        where gcc
+        where cl
         ninja
+      shell: cmd
   
 
