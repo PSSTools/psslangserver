@@ -10,6 +10,8 @@ endif()
 
 message("CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
 
+set(CMAKE_CXX_STANDARD 11)
+
 ExternalProject_Add(PSSPARSER
 	PREFIX pssparser
 	SOURCE_DIR "${PACKAGES_DIR}/pssparser"
