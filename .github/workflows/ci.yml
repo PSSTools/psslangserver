@@ -82,9 +82,7 @@ jobs:
         call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
         mkdir build
         cd build
-        where clang
-        where gcc
-        where cl
+        cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release 
         ninja
       shell: cmd
   
