@@ -28,6 +28,12 @@ jobs:
         cd build
         cmake .. -DCMAKE_BUILD_TYPE=Release
         make
+    - name: Save build result
+      uses: actions/upload-artifact@v2
+      with:
+          name: psslangserver-linux_x64
+          path: |
+              build/psslangserver
 
   ci-osx:
     runs-on: macos-latest
@@ -53,6 +59,12 @@ jobs:
         cd build
         cmake .. -DCMAKE_BUILD_TYPE=Release
         make
+    - name: Save build result
+      uses: actions/upload-artifact@v2
+      with:
+          name: psslangserver-macos_x64
+          path: |
+              build/psslangserver
 
   ci-win32_x64:
     name: "Windows x64"
@@ -80,6 +92,12 @@ jobs:
         cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release 
         ninja
       shell: cmd
+    - name: Save build result
+      uses: actions/upload-artifact@v2
+      with:
+          name: psslangserver-win32_x64
+          path: |
+              build/psslangserver.exe
   ci-win32_x86:
     name: "Windows x86"
     runs-on: windows-latest
@@ -106,4 +124,10 @@ jobs:
         cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release 
         ninja
       shell: cmd
+    - name: Save build result
+      uses: actions/upload-artifact@v2
+      with:
+          name: psslangserver-win32_x86
+          path: |
+              build/psslangserver.exe
 
