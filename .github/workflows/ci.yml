@@ -20,10 +20,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-      tag_name: ${{ github.ref }}
-      release_name: Release ${{ github.ref }}
-      draft: false
-      prerelease: false
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
   ci-linux:
     needs: create_release
     runs-on: ubuntu-latest
