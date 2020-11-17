@@ -1,0 +1,184 @@
+name: CI
+on:
+  push:
+    tags:
+    - 'v[0-9]+.*'
+jobs:
+  create_release:
+    name: Create release
+    runs-on: ubuntu-latest
+    # Note this. We are going to use that in further jobs.
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+  ci-linux:
+    needs: create_release
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup java
+      uses: actions/setup-java@v1
+      with:
+        java-version: '11.0.x'
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    - name: Install uuid
+      run: sudo apt-get install uuid-dev python3-venv
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade ivpm
+        python -m ivpm update
+    - name: Build
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
+        make
+    - name: Package
+      run: |
+        cd build
+        tar czf psslangserver-linux_x64.tar.gz psslangserver
+    - name: Save build result
+      uses: actions/upload-artifact@v2
+      with:
+          name: psslangserver-linux_x64
+          path: |
+              build/psslangserver
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./build/psslangserver-linux_x64.tar.gz
+        asset_name: psslangserver-linux_x64.tar.gz
+        asset_content_type: application/x-gzip
+
+  ci-osx:
+    needs: create_release
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup java
+      uses: actions/setup-java@v1
+      with:
+        java-version: '11.0.x'
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    - name: Install uuid
+      run: brew install ossp-uuid
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade ivpm
+        python -m ivpm update
+    - name: Build
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
+        make
+        tar czf psslangserver-macos_x64.tar.gz psslangserver
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./build/psslangserver-macos_x64.tar.gz
+        asset_name: psslangserver-macos_x64.tar.gz
+        asset_content_type: application/x-gzip
+
+  ci-win32_x64:
+    name: "Windows x64"
+    needs: create_release
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup java
+      uses: actions/setup-java@v1
+      with:
+        java-version: '11.0.x'
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade ivpm
+        python -m pip install --upgrade ninja
+        python -m ivpm update
+    - name: Build
+      run: |
+        call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+        mkdir build
+        cd build
+        cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release 
+        ninja
+        zip psslangserver-win32_x86.zip psslangserver.exe
+      shell: cmd
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./build/psslangserver-win32_x86.zip
+        asset_name: psslangserver-win32_x86.zip
+        asset_content_type: application/zip
+
+  ci-win32_x86:
+    name: "Windows x86"
+    needs: create_release
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup java
+      uses: actions/setup-java@v1
+      with:
+        java-version: '11.0.x'
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade ivpm
+        python -m pip install --upgrade ninja
+        python -m ivpm update
+    - name: Build
+      run: |
+        call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars32.bat"
+        mkdir build
+        cd build
+        cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release 
+        ninja
+        zip psslangserver-win32_x64.zip psslangserver.exe
+      shell: cmd
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./build/psslangserver-win32_x64.zip
+        asset_name: psslangserver-win32_x64.zip
+        asset_content_type: application/zip
+
