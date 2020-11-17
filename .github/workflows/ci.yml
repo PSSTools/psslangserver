@@ -16,7 +16,7 @@ jobs:
       with:
         java-version: '11.0.x'
     - name: Create Release
-      id: ${{ version }}
+      id: ${{env.version }}
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
@@ -162,15 +162,15 @@ jobs:
       with:
         java-version: '11.0.x'
     - name: Create Release
-      id: ${{ env.version }}
+      id: ${{env.version}}
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
       with:
-        tag_name: v${{ env.version }}
-        release_name: Release v${{ env.version }}
+        tag_name: v${{env.version}}
+        release_name: Release v${{env.version}}
         body: |
-            v${{ env.version }} release
+            v${{env.version}} release
         draft: false
         prerelease: false
     - name: Set up Python 3.8
