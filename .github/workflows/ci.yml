@@ -7,7 +7,25 @@ env:
   version: 0.0.1
   
 jobs:
+  create_release:
+    name: Create release
+    runs-on: ubuntu-latest
+    # Note this. We are going to use that in further jobs.
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+      tag_name: ${{ github.ref }}
+      release_name: Release ${{ github.ref }}
+      draft: false
+      prerelease: false
   ci-linux:
+    needs: create_release
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -15,19 +33,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: '11.0.x'
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-      with:
-        tag_name: v0.0.1
-        release_name: Release v0.0.1
-        body: |
-            v0.0.1 release
-        draft: false
-        prerelease: false
-
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
@@ -60,12 +65,13 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        upload_url: ${{ needs.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
         asset_path: ./build/psslangserver-linux_x64.tar.gz
         asset_name: psslangserver-linux_x64.tar.gz
         asset_content_type: application/x-gzip
 
   ci-osx:
+    needs: create_release
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
@@ -73,18 +79,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: '11.0.x'
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-      with:
-        tag_name: v0.0.1
-        release_name: Release v0.0.1
-        body: |
-            v0.0.1 release
-        draft: false
-        prerelease: false
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
@@ -110,6 +104,7 @@ jobs:
 
   ci-win32_x64:
     name: "Windows x64"
+    needs: create_release
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
@@ -117,18 +112,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: '11.0.x'
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-      with:
-        tag_name: v0.0.1
-        release_name: Release v0.0.1
-        body: |
-            v0.0.1 release
-        draft: false
-        prerelease: false
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
@@ -154,6 +137,7 @@ jobs:
               build/psslangserver.exe
   ci-win32_x86:
     name: "Windows x86"
+    needs: create_release
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
@@ -161,18 +145,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: '11.0.x'
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-      with:
-        tag_name: v0.0.1
-        release_name: Release v0.0.1
-        body: |
-            v0.0.1 release
-        draft: false
-        prerelease: false
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
