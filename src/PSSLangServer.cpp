@@ -32,7 +32,7 @@
 #include "ValStr.h"
 #include "WorkDoneProgressOptions.h"
 
-#define EN_DEBUG_PSS_LANGSERVER
+#undef EN_DEBUG_PSS_LANGSERVER
 
 #ifdef EN_DEBUG_INDEX_MANAGER
 #define DEBUG_ENTER(fmt, ...) \

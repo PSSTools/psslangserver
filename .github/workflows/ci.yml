@@ -3,6 +3,9 @@ on:
   - push
   - pull_request
   - workflow_dispatch
+env:
+  version: 0.0.1
+  
 jobs:
   ci-linux:
     runs-on: ubuntu-latest
@@ -12,6 +15,19 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: '11.0.x'
+    - name: Create Release
+      id: ${{ env.version }}
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: v${{ env.version }}
+        release_name: Release v${{ env.version }}
+        body: |
+            v${{ env.version }} release
+        draft: false
+        prerelease: false
+
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
@@ -28,12 +44,26 @@ jobs:
         cd build
         cmake .. -DCMAKE_BUILD_TYPE=Release
         make
+    - name: Package
+      run: |
+        cd build
+        tar czf psslangserver-linux_x64.tar.gz psslangserver
     - name: Save build result
       uses: actions/upload-artifact@v2
       with:
           name: psslangserver-linux_x64
           path: |
               build/psslangserver
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+      asset_path: ./build/psslangserver-linux_x64.tar.gz
+      asset_name: psslangserver-linux_x64.tar.gz
+      asset_content_type: application/x-gzip
 
   ci-osx:
     runs-on: macos-latest
@@ -43,6 +73,18 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: '11.0.x'
+    - name: Create Release
+      id: ${{ env.version }}
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: v${{ env.version }}
+        release_name: Release v${{ env.version }}
+        body: |
+            v${{ env.version }} release
+        draft: false
+        prerelease: false
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
@@ -75,6 +117,18 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: '11.0.x'
+    - name: Create Release
+      id: ${{ env.version }}
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: v${{ env.version }}
+        release_name: Release v${{ env.version }}
+        body: |
+            v${{ env.version }} release
+        draft: false
+        prerelease: false
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
@@ -107,6 +161,18 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: '11.0.x'
+    - name: Create Release
+      id: ${{ env.version }}
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: v${{ env.version }}
+        release_name: Release v${{ env.version }}
+        body: |
+            v${{ env.version }} release
+        draft: false
+        prerelease: false
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
