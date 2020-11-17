@@ -16,15 +16,15 @@ jobs:
       with:
         java-version: '11.0.x'
     - name: Create Release
-      id: ${{env.version }}
+      id: 0.0.1
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
       with:
-        tag_name: v${{ version }}
-        release_name: Release v${{ version }}
+        tag_name: v0.0.1
+        release_name: Release v0.0.1
         body: |
-            v${{ version }} release
+            v0.0.1 release
         draft: false
         prerelease: false
 
@@ -74,15 +74,15 @@ jobs:
       with:
         java-version: '11.0.x'
     - name: Create Release
-      id: ${{ env.version }}
+      id: 0.0.1
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
       with:
-        tag_name: v${{ env.version }}
-        release_name: Release v${{ env.version }}
+        tag_name: v0.0.1
+        release_name: Release v0.0.1
         body: |
-            v${{ env.version }} release
+            v0.0.1 release
         draft: false
         prerelease: false
     - name: Set up Python 3.8
@@ -118,15 +118,15 @@ jobs:
       with:
         java-version: '11.0.x'
     - name: Create Release
-      id: ${{ env.version }}
+      id: 0.0.1
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
       with:
-        tag_name: v${{ env.version }}
-        release_name: Release v${{ env.version }}
+        tag_name: v0.0.1
+        release_name: Release v0.0.1
         body: |
-            v${{ env.version }} release
+            v0.0.1 release
         draft: false
         prerelease: false
     - name: Set up Python 3.8
@@ -162,15 +162,15 @@ jobs:
       with:
         java-version: '11.0.x'
     - name: Create Release
-      id: ${{env.version}}
+      id: 0.0.1
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
       with:
-        tag_name: v${{env.version}}
-        release_name: Release v${{env.version}}
+        tag_name: v0.0.1
+        release_name: Release v0.0.1
         body: |
-            v${{env.version}} release
+            v0.0.1 release
         draft: false
         prerelease: false
     - name: Set up Python 3.8
