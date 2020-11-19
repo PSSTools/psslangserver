@@ -185,4 +185,9 @@ jobs:
         echo "Let's see what's here"
         ls
         find -type f
+    - name: create-release
+      if: startsWith(github.ref, "v")
+      run: |
+        echo "Create the release"
+
 
