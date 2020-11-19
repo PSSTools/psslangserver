@@ -142,17 +142,23 @@ jobs:
     - uses: actions/download-artifact@v2
       with:
         name: psslangserver-linux_x64
+        path: linux_x64
     - uses: actions/download-artifact@v2
       with:
         name: psslangserver-macos_x64
+        path: macos_x64
     - uses: actions/download-artifact@v2
       with:
         name: psslangserver-win32_x64
+        path: win32_x64
     - uses: actions/download-artifact@v2
       with:
         name: psslangserver-win32_x86
+        path: win32_x86
     - name: check-up
       run: |
         echo "Let's see what's here"
         ls
+        find -type f
+
 
