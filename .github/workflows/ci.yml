@@ -133,4 +133,26 @@ jobs:
           name: psslangserver-win32_x86
           path: |
               build/psslangserver.exe
+  release:
+    name: "Release Artifacts"
+    needs: [ci-linux, ci-osx, ci-win32_x64, ci-win32_x86]
+    runs-on: ubuntu-latest
+    # Note this. We are going to use that in further jobs.
+    steps:
+    - uses: actions/download-artifact@v2
+      with:
+        name: psslangserver-linux_x64
+    - uses: actions/download-artifact@v2
+      with:
+        name: psslangserver-macos_x64
+    - uses: actions/download-artifact@v2
+      with:
+        name: psslangserver-win32_x64
+    - uses: actions/download-artifact@v2
+      with:
+        name: psslangserver-win32_x86
+    - name: check-up
+      run: |
+        echo "Let's see what's here"
+        ls
 
