@@ -185,9 +185,55 @@ jobs:
         echo "Let's see what's here"
         ls
         find -type f
-    - name: create-release
+    - name: Create release
+      id: create_release
       if: startsWith(github.ref, 'v')
-      run: |
-        echo "Create the release"
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
 
+    - name: Upload macOS x64
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: ./psslangserver-macos_x64.tar.gz
+        asset_name: psslangserver-macos_x64.tar.gz
+        asset_content_type: application/x-gzip
+
+    - name: Upload Linux x64
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: ./psslangserver-linux_x64.tar.gz
+        asset_name: psslangserver-linux_x64.tar.gz
+        asset_content_type: application/x-gzip
+
+    - name: Upload Win32 x64
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: ./psslangserver-win32_x64.tar.gz
+        asset_name: psslangserver-win32_x64.tar.gz
+        asset_content_type: application/zip
+
+    - name: Upload Win32 x86
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: ./psslangserver-win32_x86.tar.gz
+        asset_name: psslangserver-win32_x86.tar.gz
+        asset_content_type: application/zip
 
