@@ -188,7 +188,7 @@ jobs:
         find -type f
     - name: Create release
       id: create_release
-      if: startsWith(github.ref, 'v')
+      if: startsWith(github.ref, 'refs/tags/v')
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -199,7 +199,7 @@ jobs:
         prerelease: false
 
     - name: Upload macOS x64
-      if: startsWith(github.ref, 'v')
+      if: startsWith(github.ref, 'refs/tags/v')
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -210,7 +210,7 @@ jobs:
         asset_content_type: application/x-gzip
 
     - name: Upload Linux x64
-      if: startsWith(github.ref, 'v')
+      if: startsWith(github.ref, 'refs/tags/v')
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -221,7 +221,7 @@ jobs:
         asset_content_type: application/x-gzip
 
     - name: Upload Win32 x64
-      if: startsWith(github.ref, 'v')
+      if: startsWith(github.ref, 'refs/tags/v')
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -232,7 +232,7 @@ jobs:
         asset_content_type: application/zip
 
     - name: Upload Win32 x86
-      if: startsWith(github.ref, 'v')
+      if: startsWith(github.ref, 'refs/tags/v')
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
