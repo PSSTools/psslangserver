@@ -227,8 +227,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ./psslangserver-win32_x64.tar.gz
-        asset_name: psslangserver-win32_x64.tar.gz
+        asset_path: ./psslangserver-win32_x64.zip
+        asset_name: psslangserver-win32_x64.zip
         asset_content_type: application/zip
 
     - name: Upload Win32 x86
@@ -238,7 +238,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ./psslangserver-win32_x86.tar.gz
-        asset_name: psslangserver-win32_x86.tar.gz
+        asset_path: ./psslangserver-win32_x86.zip
+        asset_name: psslangserver-win32_x86.zip
         asset_content_type: application/zip
 
