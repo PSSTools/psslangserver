@@ -160,5 +160,29 @@ jobs:
         echo "Let's see what's here"
         ls
         find -type f
+    - name: repack
+      run: |
+        cd linux_x64
+        chmod +x psslangserver
+        tar czf ../psslangserver-linux_x64.tar.gz psslangserver
+        cd ..
 
+        cd macos_x64
+        chmod +x psslangserver
+        tar czf ../psslangserver-macos_x64.tar.gz psslangserver
+        cd ..
+
+        cd win32_x64
+        zip ../psslangserver-win32_x64.zip psslangserver.exe
+        cd ..
+
+        cd win32_x86
+        zip ../psslangserver-win32_x86.zip psslangserver.exe
+        cd ..
+
+    - name: check-up2
+      run: |
+        echo "Let's see what's here"
+        ls
+        find -type f
 
